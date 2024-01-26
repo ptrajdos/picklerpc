@@ -1,4 +1,13 @@
 # Pickle RPC in Python
+
+
+![Python versions](https://img.shields.io/badge/Python-3.6%2B-blue.svg)
+[![PyPI version](https://img.shields.io/pypi/v/picklerpc.svg?logo=pypi&logoColor=FFE873)](https://pypi.org/project/picklerpc/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/picklerpc.svg)](https://pypistats.org/packages/picklerpc)
+![Code size](https://shields.io/github/languages/code-size/chenxinfeng4/picklerpc
+)
+![Last Commit](https://shields.io/github/last-commit/chenxinfeng4/picklerpc)
+
 Very simple RPCs built with sockets & pickle in python. Support numpy as input and output arguments.
 
 ## Install
@@ -54,9 +63,9 @@ print(client.add(np.range(10), 3))
 print(client.minus(np.range(10), 3))
 ```
 
-## Speed compare
+## Speed faster
 
-The picklerpc is most 10x faster than `zerorpc` and `xmlrpc`.
+The picklerpc is most **10x faster** than `zerorpc` and `xmlrpc`.
 
 |                    | zerorpc | xmlrpc  | picklerpc (mine)    |
 | ------------------ | ------- | ------- | ------------------- |
