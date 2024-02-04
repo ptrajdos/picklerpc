@@ -22,29 +22,29 @@ import picklerpc
 import numpy as np
 
 # function
-def numpy_create(shape, dtype):
-    return np.arange(np.prod(shape), dtype=dtype).reshape(shape)
+def func_numpy(data:np.ndarray) -> np.ndarray:
+    return data + np.random.random(size=data.shape)
 
-def hello():
-    return "Hello, world!"
+def func_str(name: None) -> str:
+    return "Hello, %s" % name
 
-def hello2():
+def func_none() -> None:
     return None
 
-def add(a, b):
+def func_number(a, b):
     return a+b
 
 class HelloRPC(object):
-    def hello3(self, name):
+    def func_obj(self, name) -> str:
         return "Hello, %s" % name
 
 # register
 server = picklerpc.PickleRPCServer(('localhost', 9102))
-server.register_function(numpy_create)
-server.register_function(hello)
-server.register_function(hello2)
-server.register_function(lambda x,y: x-y, 'minus')
-server.register_function(add)
+server.register_function(func_numpy)
+server.register_function(func_str)
+server.register_function(func_none)
+server.register_function(func_number)
+server.register_function(lambda x,y: x-y, 'func_lambda')
 server.register_instance(HelloRPC())  #from instance
 server.serve_forever()
 ```
@@ -56,11 +56,12 @@ import numpy as np
 
 client = picklerpc.PickleRPCClient(('localhost', 9102))
 
-print(client.numpy_create((3,4), dtype=np.float32))
-print(client.hello())
-print(client.hello3('From Instance'))
-print(client.add(np.range(10), 3))
-print(client.minus(np.range(10), 3))
+print(client.func_numpy(np.arange(10), dtype=np.float32))
+print(client.func_str('Pickle RPC'))
+print(client.func_none())
+print(client.func_number(np.range(10), 3))
+print(client.func_lambda(np.range(10), 3))
+print(client.func_obj('Pickle RPC'))
 ```
 
 ## Speed faster
