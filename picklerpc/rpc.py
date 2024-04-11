@@ -22,6 +22,7 @@ class PickleRPCServer:
         if addr is None:
             addr = ('localhost', 8080)
         self.address = addr[0], int(addr[1])
+        self.n_connection = 0
         self.funcs = {}
 
     def help(self) -> None:
@@ -29,6 +30,18 @@ class PickleRPCServer:
         for method in self.funcs.items():
             print('\t',method)
     
+    def register(self, name=None):
+        """Registers a function to respond to Pickle-RPC requests.
+
+        The optional name argument can be used to set a Unicode name
+        for the function.
+        """
+        def decorator(func):
+            _name = function.__name__ if name is None else name
+            self.funcs[_name] = func
+            return func
+        return decorator
+
     def register_function(self, function=None, name=None):
         """Registers a function to respond to Pickle-RPC requests.
 
@@ -58,6 +71,7 @@ class PickleRPCServer:
     '''
     def __handle__(self, client:socket.socket, address:tuple):
         print(f'Managing requests from {address}.')
+        self.n_connection += 1
         while True:
             try:
                 functionName, args, kwargs = pickle.loads(recvall(client))
@@ -74,7 +88,7 @@ class PickleRPCServer:
             else:
                 client.sendall(pickle.dumps(response))
 
-
+        self.n_connection -= 1
         print(f'Completed request from {address}.')
         client.close()
     
