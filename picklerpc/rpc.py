@@ -2,6 +2,7 @@ import pickle
 import socket
 import inspect
 from threading import Thread
+import logging
 
 SIZE = 1024
 
@@ -70,26 +71,26 @@ class PickleRPCServer:
         client -> 
     '''
     def __handle__(self, client:socket.socket, address:tuple):
-        print(f'Managing requests from {address}.')
+        logging.info(f'{PickleRPCServer.__name__}: Managing requests from {address}.')
         self.n_connection += 1
         while True:
             try:
                 functionName, args, kwargs = pickle.loads(recvall(client))
             except: 
-                print(f'! Client {address} disconnected.')
+                logging.warning(f'! Client {address} disconnected.')
                 break
             # Showing request Type            
             try:
                 response = self.funcs[functionName](*args, **kwargs)
             except Exception as e:
                 # Send back exeption if function called by client is not registred 
-                print(e)
+                logging.error(f'{PickleRPCServer.__name__}: Exception during hangling the request.',exc_info=True)
                 client.sendall(pickle.dumps(str(e)))
             else:
                 client.sendall(pickle.dumps(response))
 
         self.n_connection -= 1
-        print(f'Completed request from {address}.')
+        logging.info(f'{PickleRPCServer.__name__}: Completed request from {address}.')
         client.close()
     
     def serve_forever(self) -> None:
@@ -97,7 +98,7 @@ class PickleRPCServer:
             sock.bind(self.address)
             sock.listen()
 
-            print(f'+ Server {self.address} running')
+            logging.info(f'{PickleRPCServer.__name__} + Server {self.address} running')
             while True:
                 try:
                     client, address = sock.accept()
@@ -105,7 +106,7 @@ class PickleRPCServer:
                     Thread(target=self.__handle__, args=[client, address]).start()
 
                 except KeyboardInterrupt:
-                    print(f'- Server {self.address} interrupted')
+                    logging.info(f'{PickleRPCServer.__name__} - Server {self.address} interrupted')
                     break
 
 
@@ -132,7 +133,7 @@ class PickleRPCClient:
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.__sock.connect(self.__address)
         except EOFError as e:
-            print(e)
+            logging.error(f"{PickleRPCClient.__name__}: Unable to connect to:  {self.__address}", exc_info=True)
             raise Exception('Client was not able to connect.')
     
     def disconnect(self):
